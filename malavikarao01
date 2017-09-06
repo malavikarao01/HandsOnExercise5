@@ -1,0 +1,51 @@
+install.packages("data.table")
+install.packages("qdap")
+library(data.table)
+library(qdap)
+
+#Q.1Combine the datasets (Emp and Dept) and create a dataset which  has department name and location along with employee information 
+
+getwd()
+
+setwd("C:\\MRAO\\AMMA 2017\\Data\\data_2017\\data_2017") #Set the working directory as the directory which contains the 2 datasets
+
+Emp <- read.csv('Emp.csv')
+Dept <- read.csv('Dept.csv')
+
+Merge <- merge(Emp, Dept, by = "DEPTNO")
+View(Merge)
+
+##########################################
+#Q.2Find the average salary by location.
+
+average.salary <- aggregate(final[,'SAL'],list(Location = final$LOC), FUN = mean)
+colnames(average.salary) <- c("Location", "Average salary")
+View(average.salary)
+
+##########################################
+#Q.3Create a dataset which has name of employee along with its manager name and find the manager who has the mostdirect reportees
+ 
+final$manager_name <- lookup(final$MGR, final[,2:3])
+emp_count <- aggregate(final[,"manager_name"], list(final$manager_name), FUN = length)
+colnames(emp_count) <- c("manager_names", "reporting_employees")
+emp_count[which.max(emp_count$reporting_employees),]
+
+#########################################
+#Q.4If salary increment across levels are given (as in question), what would be the salary after increment
+
+for(i in 1:nrow(final)) #Loop till the end of the rows of 'final' dataset
+{
+  if (final[i,4] == 'ANALYST'){                   #15% increment
+    final[i,7] <- (final[i,7]*1.15)           
+  }else if (final[i,4] == 'CLERK'){               #12.5% increment
+         final[i,7] <- (final[i,7]*1.125)
+  }else if (final[i,4] == 'MANAGER'){             #10.2% increment
+         final[i,7] <- (final[i,7]*1.102)
+  }else if (final[i,4] == 'PRESIDENT'){           #5.7% increment
+         final[i,7] <- (final[i,7]*1.057)
+  }else if(final[i,4] == 'SALESMAN'){
+         final[i,7] <- (final[i,7]*1.133)
+  }else{
+    NULL
+  }  
+}
